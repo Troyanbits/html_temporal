@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crypto Hash Lab - Entorno de Pruebas Criptográficas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        trantor: {
+                            bg: '#E2E4E8',
+                            card: '#FFFFFF',
+                            cardInner: '#F3F4F6',
+                            border: 'rgba(0, 0, 0, 0.08)',
+                            mint: '#A7F3D0',
+                            mintDark: '#064E3B',
+                            gold: '#FDE68A',
+                            goldDark: '#78350F',
+                            ice: '#BAE6FD',
+                            iceDark: '#0C4A6E',
+                            purple: '#DDD6FE',
+                            purpleDark: '#4C1D95',
+                            textMain: '#0F172A',
+                            textMuted: '#64748B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #E2E4E8;
+            color: #0F172A;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .trantor-card {
+            background-color: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 2rem;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .trantor-card-inner {
+            background-color: #F3F4F6;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1.25rem;
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background-color: #0F172A;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+
+        .hash-diff-same {
+            color: #94A3B8;
+        }
+        .hash-diff-changed {
+            color: #DC2626;
+            font-weight: 700;
+            background-color: #FEE2E2;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #E2E4E8; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-5 md:p-8 max-w-7xl mx-auto">
+
+    <!-- Header Principal -->
+    <header class="w-full trantor-card p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5 w-full sm:w-auto">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 text-amber-200 flex items-center justify-center font-extrabold text-base shadow-sm shrink-0">
+                ⚡
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-sm sm:text-base font-extrabold tracking-wide text-slate-900 uppercase">Crypto Hash Lab</h1>
+                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                        WEB CRYPTO API
+                    </span>
+                </div>
+                <p class="text-[11px] sm:text-xs text-slate-600 font-semibold">
+                    Simulador Criptográfico para Evaluación Técnica de Cadenas y Hash
+                </p>
+            </div>
+        </div>
+
+        <!-- Indicador de Seguridad Client-side -->
+        <div class="flex items-center gap-2 bg-slate-100 px-3.5 py-2 rounded-2xl border border-slate-200 text-xs text-slate-600 font-mono">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>PROCESAMIENTO 100% LOCAL Y PRIVADO</span>
+        </div>
+    </header>
+
+    <!-- Menú de Pestañas del Laboratorio -->
+    <nav class="flex overflow-x-auto gap-2 mb-6 pb-2 scrollbar-none">
+        <button onclick="switchTab('tab-generator')" id="btn-tab-generator" class="tab-btn active px-4 py-2.5 rounded-full text-xs font-bold shrink-0 border border-slate-200">
+            ⚡ Generador de Hash
+        </button>
+        <button onclick="switchTab('tab-avalanche')" id="btn-tab-avalanche" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-full text-xs font-bold shrink-0 border border-slate-200">
+            🌊 Efecto Avalancha
+        </button>
+        <button onclick="switchTab('tab-salt')" id="btn-tab-salt" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-full text-xs font-bold shrink-0 border border-slate-200">
+            🧂 Salting & Claves
+        </button>
+        <button onclick="switchTab('tab-pow')" id="btn-tab-pow" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-full text-xs font-bold shrink-0 border border-slate-200">
+            ⛏️ Minería PoW (Blockchain)
+        </button>
+        <button onclick="switchTab('tab-hmac')" id="btn-tab-hmac" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-4 py-2.5 rounded-full text-xs font-bold shrink-0 border border-slate-200">
+            🔑 HMAC / Firma de API
+        </button>
+    </nav>
+
+    <!-- MÓDULO 1: GENERADOR DE HASH STANDARD -->
+    <section id="tab-generator" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div class="lg:col-span-5 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-bold uppercase font-mono text-slate-500">ENTRADA DE DATOS</span>
+                    <span class="text-[10px] bg-slate-100 px-2.5 py-1 rounded-full text-slate-600 font-mono" id="input-stats">0 Bytes · 0 Caracteres</span>
+                </div>
+                
+                <label class="block text-xs font-bold text-slate-900 mb-2">Texto, Clave o Código a Convertir:</label>
+                <textarea 
+                    id="gen-input" 
+                    rows="6" 
+                    oninput="processStandardHashes()"
+                    placeholder="Escriba aquí cualquier palabra, frase o valor..."
+                    class="w-full p-4 rounded-2xl trantor-card-inner text-sm font-mono text-slate-900 border-0 focus:outline-none focus:ring-2 focus:ring-slate-900 transition resize-none"
+                >Cryptocurrencies for Bankers 2026</textarea>
+
+                <div class="flex gap-2 mt-3">
+                    <button onclick="setGenPreset('Satoshi Nakamoto')" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-700 font-medium">
+                        Satoshi Nakamoto
+                    </button>
+                    <button onclick="setGenPreset('Nova Capital')" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-700 font-medium">
+                        Nova Capital
+                    </button>
+                    <button onclick="setGenPreset('123456')" class="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-[11px] text-slate-700 font-medium">
+                        123456
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
+                💡 Un hash es una función unidireccional: es imposible revertir el hash resultante para obtener el texto original.
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 trantor-card p-6 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 uppercase font-mono tracking-wider mb-2">Huellas Criptográficas Resultantes</h3>
+
+            <!-- SHA-256 -->
+            <div class="trantor-card-inner p-4 relative group">
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-900">SHA-256</span>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-mono font-bold">ESTÁNDAR BITCOIN & BITCOIN CASH</span>
+                    </div>
+                    <button onclick="copyToClipboard('out-sha256')" class="text-[10px] bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-mono">
+                        📋 Copiar
+                    </button>
+                </div>
+                <div id="out-sha256" class="font-mono text-xs text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 font-bold select-all">
+                    Calculando...
+                </div>
+            </div>
+
+            <!-- SHA-512 -->
+            <div class="trantor-card-inner p-4 relative">
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-900">SHA-512</span>
+                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-mono font-bold">ALTA SEGURIDAD (512 BITS)</span>
+                    </div>
+                    <button onclick="copyToClipboard('out-sha512')" class="text-[10px] bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-mono">
+                        📋 Copiar
+                    </button>
+                </div>
+                <div id="out-sha512" class="font-mono text-[11px] text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 select-all">
+                    Calculando...
+                </div>
+            </div>
+
+            <!-- SHA-1 -->
+            <div class="trantor-card-inner p-4 relative opacity-85">
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-900">SHA-1</span>
+                        <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[9px] font-mono font-bold">DEPRECADO (OBSOLETO POR COLISIONES)</span>
+                    </div>
+                    <button onclick="copyToClipboard('out-sha1')" class="text-[10px] bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-mono">
+                        📋 Copiar
+                    </button>
+                </div>
+                <div id="out-sha1" class="font-mono text-xs text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 select-all">
+                    Calculando...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÓDULO 2: EFECTO AVALANCHA -->
+    <section id="tab-avalanche" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div class="lg:col-span-12 trantor-card p-6">
+            <div class="mb-4">
+                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-[10px] font-mono font-bold">PRINCIPIO CRIPTOGRÁFICO DE SHANNON</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2">El Efecto Avalancha (Avalanche Effect)</h2>
+                <p class="text-xs text-slate-600 mt-1">
+                    Cambiar un solo carácter o un bit en la entrada debe alterar drásticamente (~50%) todos los caracteres del hash de salida.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <!-- Cadena A -->
+                <div class="trantor-card-inner p-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-900">Texto Entrada #1</span>
+                        <span class="text-[10px] text-slate-500 font-mono">Original</span>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="av-input-1" 
+                        value="BancoNacional2026" 
+                        oninput="compareAvalanche()"
+                        class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-900 focus:outline-none"
+                    />
+                    <div>
+                        <span class="text-[10px] text-slate-500 font-mono block mb-1">Hash SHA-256 (#1):</span>
+                        <div id="av-hash-1" class="font-mono text-[11px] text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 font-bold"></div>
+                    </div>
+                </div>
+
+                <!-- Cadena B -->
+                <div class="trantor-card-inner p-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-900">Texto Entrada #2</span>
+                        <span class="text-[10px] text-rose-600 font-mono font-bold">Modificación Mínima</span>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="av-input-2" 
+                        value="BancoNacional2027" 
+                        oninput="compareAvalanche()"
+                        class="w-full px-4 py-2.5 rounded-xl bg-white border border-rose-300 text-xs font-mono font-bold text-slate-900 focus:outline-none"
+                    />
+                    <div>
+                        <span class="text-[10px] text-slate-500 font-mono block mb-1">Hash SHA-256 (#2) - Dificultad visual de coincidencia:</span>
+                        <div id="av-hash-2" class="font-mono text-[11px] text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 font-bold"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Variación -->
+            <div class="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold text-amber-900 block">Diferencia Total entre Hashes:</span>
+                    <p class="text-xs text-amber-800 mt-0.5">Las zonas resaltadas en rojo muestran posiciones donde los caracteres cambiaron por completo.</p>
+                </div>
+                <div id="av-diff-percentage" class="px-4 py-2 rounded-xl bg-amber-200 text-amber-900 font-mono font-extrabold text-base shrink-0">
+                    --% Mutado
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÓDULO 3: SALTING DE CONTRASEÑAS -->
+    <section id="tab-salt" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div class="lg:col-span-5 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-900 text-[10px] font-mono font-bold">PROTECCIÓN CONTRA RAINBOW TABLES</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2">Salting & Derivación de Claves</h2>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Si dos usuarios eligen la contraseña <code class="bg-slate-200 px-1 rounded">Clave123</code>, sus hashes simples serán idénticos. Al añadir un **Salt** (secuencia aleatoria única), los dos hashes resultan completamente irreconocibles entre sí.
+                </p>
+
+                <div class="space-y-3 mt-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Contraseña Usuario:</label>
+                        <input 
+                            type="text" 
+                            id="salt-pass" 
+                            value="PasswordBancario2026" 
+                            oninput="processSaltDemo()"
+                            class="w-full px-4 py-2.5 rounded-xl trantor-card-inner text-xs font-mono font-bold text-slate-900"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Salt Aleatorio (Cadena Única):</label>
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                id="salt-val" 
+                                value="x9F_k#82pZ" 
+                                oninput="processSaltDemo()"
+                                class="w-full px-4 py-2.5 rounded-xl trantor-card-inner text-xs font-mono font-bold text-slate-900"
+                            />
+                            <button onclick="generateRandomSalt()" class="px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold shrink-0">
+                                🎲 Nuevo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
+                🔒 Estándares bancarios como PBKDF2, Bcrypt y Argon2 utilizan salting iterativo miles de veces para ralentizar ataques de fuerza bruta.
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 trantor-card p-6 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 uppercase font-mono tracking-wider mb-2">Comparativa de Seguridad</h3>
+
+            <!-- Sin Salt -->
+            <div class="trantor-card-inner p-4 border-l-4 border-l-rose-500">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-bold text-rose-700">1. Hash Simple (Vulnerable a Tablas Arcoíris)</span>
+                    <span class="text-[10px] font-mono text-slate-500">SHA256(Contraseña)</span>
+                </div>
+                <div id="out-salt-simple" class="font-mono text-xs text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 mt-2 font-bold"></div>
+            </div>
+
+            <!-- Con Salt -->
+            <div class="trantor-card-inner p-4 border-l-4 border-l-emerald-500">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-bold text-emerald-800">2. Hash con Salt (Protegido)</span>
+                    <span class="text-[10px] font-mono text-slate-500">SHA256(Contraseña + Salt)</span>
+                </div>
+                <div id="out-salt-combined" class="font-mono text-xs text-slate-800 break-all bg-white p-3 rounded-xl border border-slate-200 mt-2 font-bold"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÓDULO 4: MINERÍA POW / BLOCKCHAIN -->
+    <section id="tab-pow" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div class="lg:col-span-5 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-900 text-[10px] font-mono font-bold">CONSENSO BITCOIN</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2">Prueba de Trabajo (Proof of Work)</h2>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Un bloque es válido únicamente cuando su hash comienza con un número determinado de ceros. El minero debe cambiar el valor incremental **Nonce** repetidamente hasta encontrar la solución.
+                </p>
+
+                <div class="space-y-3 mt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Número de Bloque:</label>
+                        <input type="number" id="pow-block" value="1" oninput="updatePowHash()" class="w-full px-4 py-2 rounded-xl trantor-card-inner text-xs font-mono font-bold" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Datos de la Transacción:</label>
+                        <textarea id="pow-data" rows="2" oninput="updatePowHash()" class="w-full p-3 rounded-xl trantor-card-inner text-xs font-mono resize-none">Transferencia $5,000,000 USD a Custodia Regulación Valores</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Dificultad (Ceros Requeridos al Inicio):</label>
+                        <select id="pow-difficulty" onchange="updatePowHash()" class="w-full px-4 py-2 rounded-xl trantor-card-inner text-xs font-bold">
+                            <option value="1">1 Cero (0...)</option>
+                            <option value="2" selected>2 Ceros (00...)</option>
+                            <option value="3">3 Ceros (000...)</option>
+                            <option value="4">4 Ceros (0000...)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="mineBlock()" id="pow-mine-btn" class="w-full mt-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-xs text-white font-bold transition shadow-md flex items-center justify-center gap-2">
+                <span>⛏️</span> Minar Bloque (Buscar Nonce)
+            </button>
+        </div>
+
+        <div class="lg:col-span-7 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-900 uppercase font-mono">ESTADO DEL BLOQUE</h3>
+                    <span id="pow-status-badge" class="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-rose-100 text-rose-800">
+                        INVALIDO (SIN DIFICULTAD)
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="trantor-card-inner p-4">
+                        <span class="text-[10px] text-slate-500 font-mono block mb-1">Nonce Encontrado (Intentos):</span>
+                        <input type="number" id="pow-nonce" value="0" oninput="updatePowHash()" class="w-full px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-mono font-bold text-slate-900" />
+                    </div>
+
+                    <div class="trantor-card-inner p-4">
+                        <span class="text-[10px] text-slate-500 font-mono block mb-1">Hash SHA-256 del Bloque:</span>
+                        <div id="pow-hash-out" class="font-mono text-xs text-slate-900 break-all bg-white p-3 rounded-xl border border-slate-200 font-bold"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pow-stats" class="mt-4 p-3 rounded-xl bg-slate-100 text-[11px] font-mono text-slate-600 flex justify-between">
+                <span>Iteraciones: <strong id="pow-attempts" class="text-slate-900">0</strong></span>
+                <span>Tiempo: <strong id="pow-time" class="text-slate-900">0 ms</strong></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÓDULO 5: HMAC FIRMA DIGITAL -->
+    <section id="tab-hmac" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        <div class="lg:col-span-5 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-mono font-bold">AUTENTICACIÓN DE APIS Y WEBHOOKS</span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-2">HMAC (Keyed-Hash)</h2>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Combina el mensaje de una transacción bancaria con una **Llave Secreta compartida** para garantizar simultáneamente la integridad de los datos y la identidad del emisor.
+                </p>
+
+                <div class="space-y-3 mt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Secret Key (Llave Privada API):</label>
+                        <input type="text" id="hmac-key" value="secret_api_key_bank_2026" oninput="processHmac()" class="w-full px-4 py-2 rounded-xl trantor-card-inner text-xs font-mono font-bold text-slate-900" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-900 mb-1">Cuerpo del Mensaje (Payload JSON):</label>
+                        <textarea id="hmac-msg" rows="4" oninput="processHmac()" class="w-full p-3 rounded-xl trantor-card-inner text-xs font-mono resize-none">{"action":"SETTLEMENT","amount":2500000,"currency":"USD"}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-500">
+                🔒 Utilizado en pasarelas institucionales como SWIFT gpi, Stripe y Binance API para validar que los mensajes no fueron alterados en tránsito.
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 trantor-card p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="text-xs font-bold text-slate-900 uppercase font-mono tracking-wider mb-3">Firma Criptográfica HMAC-SHA256 Generada</h3>
+
+                <div class="trantor-card-inner p-5 space-y-3">
+                    <span class="text-[10px] font-mono text-slate-500 block">Firma Resultante (Firma Digital del Webhook):</span>
+                    <div id="hmac-out" class="font-mono text-xs text-slate-900 break-all bg-white p-4 rounded-xl border border-slate-200 font-bold"></div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+                ✔ <strong>Verificación:</strong> Si el receptor calcula la misma firma con su llave secreta, se demuestra que el mensaje no fue modificado por ningún atacante.
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer class="w-full mt-10 py-5 border-t border-slate-300 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <span>© José Gabriel Córdoba · Entorno de Laboratorio Criptográfico.</span>
+        <span class="font-mono text-[11px] bg-white px-3 py-1 rounded-full border border-slate-200">Ejecución 100% en Navegador (Client-Side)</span>
+    </footer>
+
+    <script>
+        // CAMBIO DE PESTAÑAS
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('bg-white', 'text-slate-700');
+        }
+
+        // COPIAR AL PORTAPAPELES
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+        }
+
+        // UTILIDAD WEB CRYPTO (SHA-256, SHA-512, SHA-1)
+        async function computeHash(message, algorithm) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest(algorithm, msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // 1. PROCESADOR HASH ESTÁNDAR
+        async function processStandardHashes() {
+            const input = document.getElementById('gen-input').value;
+            const bytes = new TextEncoder().encode(input).length;
+            document.getElementById('input-stats').innerText = `${bytes} Bytes · ${input.length} Caracteres`;
+
+            document.getElementById('out-sha256').innerText = await computeHash(input, 'SHA-256');
+            document.getElementById('out-sha512').innerText = await computeHash(input, 'SHA-512');
+            document.getElementById('out-sha1').innerText = await computeHash(input, 'SHA-1');
+        }
+
+        function setGenPreset(val) {
+            document.getElementById('gen-input').value = val;
+            processStandardHashes();
+        }
+
+        // 2. COMPARADOR EFECTO AVALANCHA
+        async function compareAvalanche() {
+            const val1 = document.getElementById('av-input-1').value;
+            const val2 = document.getElementById('av-input-2').value;
+
+            const hash1 = await computeHash(val1, 'SHA-256');
+            const hash2 = await computeHash(val2, 'SHA-256');
+
+            document.getElementById('av-hash-1').innerText = hash1;
+
+            // Highlight differences
+            let diffHTML = '';
+            let diffCount = 0;
+            for (let i = 0; i < hash1.length; i++) {
+                if (hash1[i] === hash2[i]) {
+                    diffHTML += `<span class="hash-diff-same">${hash2[i]}</span>`;
+                } else {
+                    diffHTML += `<span class="hash-diff-changed">${hash2[i]}</span>`;
+                    diffCount++;
+                }
+            }
+            document.getElementById('av-hash-2').innerHTML = diffHTML;
+
+            const percentage = Math.round((diffCount / hash1.length) * 100);
+            document.getElementById('av-diff-percentage').innerText = `${percentage}% Mutación`;
+        }
+
+        // 3. DEMO SALTING
+        async function processSaltDemo() {
+            const pass = document.getElementById('salt-pass').value;
+            const salt = document.getElementById('salt-val').value;
+
+            const simpleHash = await computeHash(pass, 'SHA-256');
+            const saltedHash = await computeHash(pass + salt, 'SHA-256');
+
+            document.getElementById('out-salt-simple').innerText = simpleHash;
+            document.getElementById('out-salt-combined').innerText = saltedHash;
+        }
+
+        function generateRandomSalt() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let salt = '';
+            for (let i = 0; i < 12; i++) {
+                salt += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('salt-val').value = salt;
+            processSaltDemo();
+        }
+
+        // 4. PRUEBA DE TRABAJO (PoW)
+        async function updatePowHash() {
+            const block = document.getElementById('pow-block').value;
+            const data = document.getElementById('pow-data').value;
+            const nonce = document.getElementById('pow-nonce').value;
+            const difficulty = parseInt(document.getElementById('pow-difficulty').value);
+
+            const payload = block + data + nonce;
+            const hash = await computeHash(payload, 'SHA-256');
+
+            document.getElementById('pow-hash-out').innerText = hash;
+
+            const targetPrefix = '0'.repeat(difficulty);
+            const badge = document.getElementById('pow-status-badge');
+
+            if (hash.startsWith(targetPrefix)) {
+                badge.innerText = 'VÁLIDO (CUMPLE DIFICULTAD)';
+                badge.className = 'px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800';
+            } else {
+                badge.innerText = 'INVÁLIDO (SIN DIFICULTAD)';
+                badge.className = 'px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-rose-100 text-rose-800';
+            }
+        }
+
+        async function mineBlock() {
+            const block = document.getElementById('pow-block').value;
+            const data = document.getElementById('pow-data').value;
+            const difficulty = parseInt(document.getElementById('pow-difficulty').value);
+            const targetPrefix = '0'.repeat(difficulty);
+
+            const btn = document.getElementById('pow-mine-btn');
+            btn.innerText = '⛏️ Minando...';
+            btn.disabled = true;
+
+            const startTime = performance.now();
+            let nonce = 0;
+            let hash = '';
+
+            // Async loop to avoid freezing UI
+            async function search() {
+                for (let i = 0; i < 2000; i++) {
+                    hash = await computeHash(block + data + nonce, 'SHA-256');
+                    if (hash.startsWith(targetPrefix)) {
+                        const endTime = performance.now();
+                        document.getElementById('pow-nonce').value = nonce;
+                        document.getElementById('pow-attempts').innerText = nonce.toLocaleString();
+                        document.getElementById('pow-time').innerText = Math.round(endTime - startTime) + ' ms';
+                        updatePowHash();
+
+                        btn.innerText = '⛏️ Minar Bloque (Buscar Nonce)';
+                        btn.disabled = false;
+                        return;
+                    }
+                    nonce++;
+                }
+                setTimeout(search, 0);
+            }
+
+            search();
+        }
+
+        // 5. HMAC GENERATION (Web Crypto API)
+        async function processHmac() {
+            const secret = document.getElementById('hmac-key').value;
+            const message = document.getElementById('hmac-msg').value;
+
+            try {
+                const enc = new TextEncoder();
+                const keyBuffer = enc.encode(secret);
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw',
+                    keyBuffer,
+                    { name: 'HMAC', hash: 'SHA-256' },
+                    false,
+                    ['sign']
+                );
+
+                const signature = await crypto.subtle.sign(
+                    'HMAC',
+                    cryptoKey,
+                    enc.encode(message)
+                );
+
+                const hashArray = Array.from(new Uint8Array(signature));
+                const hmacHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                document.getElementById('hmac-out').innerText = hmacHex;
+            } catch (err) {
+                document.getElementById('hmac-out').innerText = 'Error en formato de datos';
+            }
+        }
+
+        // Inicialización al cargar la ventana
+        window.onload = function() {
+            processStandardHashes();
+            compareAvalanche();
+            processSaltDemo();
+            updatePowHash();
+            processHmac();
+        };
+    </script>
+</body>
+</html>
