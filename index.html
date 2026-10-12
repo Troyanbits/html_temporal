@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cryptocurrencies for Bankers - Conferencia Ejecutiva</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        trantor: {
+                            bg: '#E2E4E8',          // Fondo neutro claro/plata mate
+                            card: '#FFFFFF',        // Tarjeta blanca limpia
+                            cardInner: '#F3F4F6',   // Sub-tarjeta gris claro
+                            border: 'rgba(0, 0, 0, 0.08)',
+                            mint: '#A7F3D0',        // Verde menta suave
+                            mintDark: '#064E3B',
+                            gold: '#FDE68A',        // Oro/crema suave
+                            goldDark: '#78350F',
+                            ice: '#BAE6FD',         // Azul hielo suave
+                            iceDark: '#0C4A6E',
+                            textMain: '#0F172A',
+                            textMuted: '#64748B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #E2E4E8;
+            color: #0F172A;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .trantor-card {
+            background-color: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 2rem;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
+            transition: all 0.25s ease;
+        }
+
+        .trantor-card-inner {
+            background-color: #F3F4F6;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .pill-mint {
+            background-color: #A7F3D0;
+            color: #064E3B;
+            font-weight: 700;
+        }
+
+        .pill-gold {
+            background-color: #FDE68A;
+            color: #78350F;
+            font-weight: 700;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            background: #000000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .modal-active {
+            display: flex !important;
+            animation: modalFadeIn 0.2s ease-out forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #gatekeeper-overlay {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 sm:p-5 md:p-8 max-w-7xl mx-auto">
+
+    <!-- PANTALLA DE ACCESO CONTROLADO (GATEKEEPER / SMART CONTRACT PROTOCOL) -->
+    <div id="gatekeeper-overlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-lg z-[100] flex items-center justify-center p-4">
+        <div class="trantor-card p-6 sm:p-10 max-w-md w-full text-center relative border border-slate-200 shadow-2xl">
+            <div class="w-16 h-16 rounded-3xl bg-slate-900 text-amber-200 border border-slate-700 flex items-center justify-center mx-auto mb-4 font-extrabold text-2xl shadow-md">
+                📜
+            </div>
+            
+            <div class="flex items-center justify-center gap-1.5 mb-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="bg-amber-100 text-amber-900 text-[10px] font-mono font-bold px-3 py-1 rounded-full border border-amber-200 uppercase tracking-wider">
+                    SMART CONTRACT ACCESS PROTOCOL
+                </span>
+            </div>
+
+            <h2 class="text-xl font-extrabold text-slate-900 mt-2">Cryptocurrencies for Bankers</h2>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Capacitación Técnica y Evaluación de Cumplimiento ALD/CFT.
+            </p>
+
+            <!-- Formulario de Verificación Criptográfica -->
+            <form onsubmit="handlePortalAccess(event)" class="mt-6 space-y-3 text-left">
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-slate-900">Llave o Token de Permiso:</label>
+                        <span class="text-[9px] font-mono text-slate-400">Verificación On-Chain</span>
+                    </div>
+                    <input 
+                        type="password" 
+                        id="portal-pass-input" 
+                        placeholder="Ingrese firma o token de acceso" 
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono transition"
+                        required
+                        autofocus
+                    />
+                    <p id="portal-pass-error" class="text-[11px] text-rose-600 font-semibold mt-1.5 hidden">
+                        ⚠️ Firma de acceso no válida o token mal formado.
+                    </p>
+                    <p id="portal-pass-expired" class="text-[11px] text-rose-600 font-bold mt-1.5 hidden">
+                        ⚠️ El tiempo de acceso para este enlace ha EXPIRADO. Solicite una nueva autorización.
+                    </p>
+                </div>
+
+                <button type="submit" id="portal-access-btn" class="w-full py-3.5 rounded-full bg-slate-900 hover:bg-slate-800 text-amber-200 text-xs font-bold transition shadow-lg active:scale-95 flex items-center justify-center gap-2 font-mono">
+                    <span>⚡</span> Validar Contrato de Acceso
+                </button>
+            </form>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 text-[10px] text-slate-400 font-mono flex items-center justify-between">
+                <span>Expositor: José Gabriel Córdoba</span>
+                <span class="text-emerald-700 font-bold">Estado: Smart Contract Listo</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra Superior Ejecutiva -->
+    <header class="w-full trantor-card p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Identificación del Expositor -->
+        <div class="flex items-center gap-3.5 w-full sm:w-auto">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 text-amber-200 flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
+                JGC
+            </div>
+            <div>
+                <h1 class="text-sm sm:text-base font-extrabold tracking-wide text-slate-900 uppercase">José Gabriel Córdoba</h1>
+                <p class="text-[11px] sm:text-xs text-slate-600 font-semibold">
+                    Compliance Officer / Sector Valores | CPAML | VA Compliance
+                </p>
+            </div>
+        </div>
+
+        <!-- Botonera Ejecutiva e Indicador de Expiración -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-slate-200 pt-3 sm:pt-0">
+            <span id="access-expiry-badge" class="hidden text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1.5 rounded-full">
+                ⏳ Acceso Válido
+            </span>
+
+            <a href="crypto_hash_lab.html" target="_blank" class="px-4 py-2.5 rounded-full bg-slate-900 text-amber-200 text-xs font-bold transition active:scale-95 flex items-center gap-2 shadow-sm hover:bg-slate-800">
+                <span>⚡</span> Hash Lab
+            </a>
+            <button onclick="openFeedbackModal()" class="px-4 py-2.5 rounded-full pill-mint text-xs transition active:scale-95 flex items-center gap-2 shadow-sm hover:opacity-90">
+                <span>💬</span> Comentarios / Dudas
+            </button>
+            <button onclick="openPasswordModal()" class="px-4 py-2.5 rounded-full pill-gold text-xs transition active:scale-95 flex items-center gap-2 shadow-sm hover:opacity-90">
+                <span>🔒</span> Descargar PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- Área Principal -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full my-auto">
+
+        <!-- Columna Izquierda: Video HD + Widgets Informativos (8 Cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Reproductor Principal -->
+            <div class="trantor-card p-4 sm:p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[11px] sm:text-xs font-bold tracking-wider text-emerald-700 uppercase font-mono">CONFERENCIA TÉCNICA HD</span>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-mono text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                        ⏱ 26 MINUTOS · CUMPLIMIENTO ON-CHAIN
+                    </span>
+                </div>
+
+                <!-- Contenedor del Video Integrado de Google Drive -->
+                <div class="video-container shadow-xl">
+                    <iframe 
+                        id="drive-player"
+                        src="https://drive.google.com/file/d/1mykpmT3L2ycoup_AnwdEKMX5EGy0QAM1/preview" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen
+                        title="Cryptocurrencies for Bankers Video">
+                    </iframe>
+                </div>
+
+                <!-- Título e Institución -->
+                <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="text-base sm:text-xl font-extrabold text-slate-900">Cryptocurrencies for Bankers</h2>
+                        <p class="text-xs text-slate-500 mt-1">De Bitcoin a la transformación de la infraestructura de valor digital.</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-mono font-bold">
+                        USO INSTITUCIONAL PRIVADO
+                    </span>
+                </div>
+            </div>
+
+            <!-- Fichas de Resumen -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="trantor-card p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-500">PÚBLICO OBJETIVO</span>
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    </div>
+                    <p class="text-xs text-slate-900 font-semibold leading-relaxed my-1">
+                        Empleados bancarios, financistas y abogados.
+                    </p>
+                    <span class="text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100">
+                        Perfil Directivo / Asesor
+                    </span>
+                </div>
+
+                <div class="trantor-card p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-500">ENFOQUE CLAVE</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <p class="text-xs text-slate-900 font-semibold leading-relaxed my-1">
+                        Marco de cumplimiento, infraestructura de activos virtuales y trazabilidad.
+                    </p>
+                    <span class="text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100">
+                        Prevención ALD / CFT
+                    </span>
+                </div>
+
+                <div class="trantor-card p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-500">RESULTADO</span>
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                    </div>
+                    <p class="text-xs text-slate-900 font-semibold leading-relaxed my-1">
+                        Criterio técnico para la evaluación operativa y legal de activos digitales.
+                    </p>
+                    <span class="text-[10px] text-slate-400 font-mono mt-3 pt-2 border-t border-slate-100">
+                        Toma de Decisiones
+                    </span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Columna Derecha: Tarjeta del Expositor (4 Cols) -->
+        <aside class="lg:col-span-4 flex flex-col gap-6">
+
+            <div class="trantor-card p-6 flex flex-col justify-between h-full">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold">
+                            EXPOSITOR
+                        </span>
+                        <span class="text-xs font-mono text-emerald-600 font-bold">● ACTIVO</span>
+                    </div>
+
+                    <h3 class="text-xl font-extrabold text-slate-900">José Gabriel Córdoba</h3>
+                    <p class="text-xs text-slate-600 font-bold mt-1 leading-relaxed">
+                        Compliance Officer / Sector Valores | CPAML | VA Compliance
+                    </p>
+
+                    <p class="text-xs text-slate-600 mt-4 leading-relaxed">
+                        Enfocado en cumplimiento normativo en prevención de blanqueo de capitales (ALD/CFT) y supervisión de activos virtuales.
+                    </p>
+
+                    <div class="trantor-card-inner p-4 mt-6 space-y-3">
+                        <div class="text-[11px] text-slate-500 font-medium">
+                            Herramientas de Pruebas
+                        </div>
+                        <div class="text-sm font-bold text-slate-900">
+                            Laboratorio de Hash Criptográfico
+                        </div>
+                        <p class="text-xs text-slate-600">
+                            Entorno interactivo para simular el cálculo de huellas SHA-256, salting de claves y minería PoW.
+                        </p>
+                        <a href="crypto_hash_lab.html" target="_blank" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs text-white font-bold transition flex items-center justify-center gap-2 shadow-sm block text-center mt-2">
+                            ⚡ Abrir Crypto Hash Lab
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <button onclick="openFeedbackModal()" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-xs text-white font-bold transition flex items-center justify-center gap-2 active:scale-95 shadow-md">
+                        ✉️ Dejar impresiones o consultas
+                    </button>
+                </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <!-- MODAL 1: Acceso Protegido PDF -->
+    <div id="password-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 items-center justify-center hidden p-4">
+        <div class="trantor-card p-6 sm:p-8 max-w-md w-full border border-slate-200 relative shadow-2xl">
+            <button onclick="closePasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-base p-1">✕</button>
+            
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 border border-amber-200 flex items-center justify-center mx-auto mb-3 font-bold text-xl">🔒</div>
+                <h3 class="text-base font-bold text-slate-900">Acceso al Material Protegido</h3>
+                <p class="text-xs text-slate-500 mt-1">Ingrese la clave de autorización para descargar la presentación ejecutiva en PDF.</p>
+            </div>
+
+            <form onsubmit="handlePasswordSubmit(event)" class="space-y-4">
+                <div>
+                    <input 
+                        type="password" 
+                        id="pdf-password-input" 
+                        placeholder="Ingrese su contraseña" 
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-amber-400 transition"
+                        required
+                    />
+                    <p id="password-error" class="text-[11px] text-rose-600 mt-2 hidden">⚠️ Contraseña incorrecta. Verifique e intente nuevamente.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-full pill-gold text-xs transition shadow-md active:scale-95">
+                    Descargar Material PDF
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Google Forms Integrado (Muestra el Head) -->
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 items-center justify-center hidden p-2 sm:p-4">
+        <div class="trantor-card p-3 sm:p-5 max-w-2xl w-full border border-slate-200 relative h-[92vh] flex flex-col bg-white">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100 mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-amber-600 text-base">💬</span>
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-900">Evaluación y Consultas Técnicas</h3>
+                </div>
+                <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-slate-700 px-2 py-1 rounded-lg hover:bg-slate-100 transition">✕</button>
+            </div>
+            
+            <div class="flex-1 w-full bg-white rounded-2xl overflow-hidden border border-slate-200">
+                <iframe 
+                    id="google-form-iframe"
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSfig4D9XtoBeB5MvmX3h_TxwGI7rGknPUnu1GZE8rl5KlsTSQ/viewform" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0"
+                    title="Formulario de Evaluación">
+                    Cargando formulario...
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de Página -->
+    <footer class="w-full mt-10 py-5 border-t border-slate-300 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <span>© José Gabriel Córdoba · Todos los derechos reservados.</span>
+        <span class="font-mono text-[11px] bg-white px-3 py-1 rounded-full border border-slate-200">Acceso Institucional Privado</span>
+    </footer>
+
+    <!-- JavaScript Execution Logic for Timed Token Verification -->
+    <script>
+        const PORTAL_ACCESS_PASSWORD = "Bankers2026";
+        const ALLOWED_STATIC_KEYS = ["Bankers2026", "Compliance2026", "NovaCapital_VIP", "SmartContract_Pass", "FinanceExec_2026"];
+        const ACCESS_PASSWORD = "Compliance2024";
+        const PDF_DRIVE_URL = "https://drive.google.com/file/d/1mykpmT3L2ycoup_AnwdEKMX5EGy0QAM1/view?usp=sharing";
+        const TOKEN_SECRET_SALT = "CryptoBankers_Exec_2026_SecureSalt";
+
+        // Helper: Compute SHA-256 for token verification
+        async function generateSignature(payloadStr) {
+            const buffer = new TextEncoder().encode(payloadStr + TOKEN_SECRET_SALT);
+            const digest = await crypto.subtle.digest('SHA-256', buffer);
+            const hex = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return hex.substring(0, 10);
+        }
+
+        async function verifyToken(tokenStr) {
+            if (!tokenStr) return { valid: false };
+
+            // 1. Check static keys
+            if (tokenStr === PORTAL_ACCESS_PASSWORD || ALLOWED_STATIC_KEYS.includes(tokenStr)) {
+                return { valid: true, expired: false, keyName: tokenStr, permanent: true };
+            }
+
+            // 2. Check signed timed token format: "payloadB64.signature"
+            const parts = tokenStr.split('.');
+            if (parts.length === 2) {
+                const [payloadB64, signature] = parts;
+                try {
+                    const expectedSig = await generateSignature(payloadB64);
+                    if (signature === expectedSig) {
+                        const payloadJson = atob(payloadB64);
+                        const payload = JSON.parse(payloadJson);
+                        const now = Date.now();
+
+                        if (payload.e === 0) {
+                            return { valid: true, expired: false, keyName: payload.k, permanent: true };
+                        } else if (now <= payload.e) {
+                            return { valid: true, expired: false, keyName: payload.k, expTimestamp: payload.e, permanent: false };
+                        } else {
+                            return { valid: true, expired: true, keyName: payload.k, expTimestamp: payload.e, permanent: false };
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error decoding token:", e);
+                }
+            }
+
+            return { valid: false };
+        }
+
+        async function checkPortalAccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenParam = urlParams.get('token') || urlParams.get('key');
+
+            if (tokenParam) {
+                const res = await verifyToken(tokenParam);
+                if (res.valid && !res.expired) {
+                    sessionStorage.setItem('portal_auth_granted', 'true');
+                    if (res.expTimestamp) {
+                        sessionStorage.setItem('portal_auth_exp', res.expTimestamp);
+                    } else {
+                        sessionStorage.removeItem('portal_auth_exp');
+                    }
+                } else if (res.expired) {
+                    sessionStorage.removeItem('portal_auth_granted');
+                    document.getElementById('portal-pass-expired').classList.remove('hidden');
+                }
+            }
+
+            const isAuth = sessionStorage.getItem('portal_auth_granted');
+            const overlay = document.getElementById('gatekeeper-overlay');
+            if (isAuth === 'true') {
+                overlay.classList.add('hidden');
+                showExpiryBadge();
+            } else {
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function showExpiryBadge() {
+            const expTs = sessionStorage.getItem('portal_auth_exp');
+            const badge = document.getElementById('access-expiry-badge');
+            
+            if (expTs) {
+                const expDate = new Date(parseInt(expTs));
+                const formatted = expDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                badge.innerText = `⏳ Válido hasta: ${formatted}`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        async function handlePortalAccess(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById('portal-pass-input').value.trim();
+            const errorElement = document.getElementById('portal-pass-error');
+            const expiredElement = document.getElementById('portal-pass-expired');
+            const btn = document.getElementById('portal-access-btn');
+
+            errorElement.classList.add('hidden');
+            expiredElement.classList.add('hidden');
+
+            btn.innerHTML = `<span>⏳</span> Verificando Firma Criptográfica...`;
+            btn.disabled = true;
+
+            await new Promise(r => setTimeout(r, 400));
+
+            const res = await verifyToken(inputVal);
+
+            if (res.valid && !res.expired) {
+                btn.innerHTML = `<span>✓</span> Contrato Validado`;
+                btn.className = "w-full py-3.5 rounded-full bg-emerald-600 text-white text-xs font-bold transition shadow-lg font-mono";
+                
+                setTimeout(() => {
+                    sessionStorage.setItem('portal_auth_granted', 'true');
+                    if (res.expTimestamp) {
+                        sessionStorage.setItem('portal_auth_exp', res.expTimestamp);
+                    }
+                    document.getElementById('gatekeeper-overlay').classList.add('hidden');
+                    showExpiryBadge();
+                }, 300);
+            } else if (res.expired) {
+                btn.innerHTML = `<span>⚡</span> Validar Contrato de Acceso`;
+                btn.disabled = false;
+                expiredElement.classList.remove('hidden');
+            } else {
+                btn.innerHTML = `<span>⚡</span> Validar Contrato de Acceso`;
+                btn.disabled = false;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        function openFeedbackModal() { 
+            document.getElementById('feedback-modal').classList.add('modal-active'); 
+        }
+        function closeFeedbackModal() { 
+            document.getElementById('feedback-modal').classList.remove('modal-active'); 
+        }
+
+        function openPasswordModal() {
+            document.getElementById('password-modal').classList.add('modal-active');
+            document.getElementById('password-error').classList.add('hidden');
+            document.getElementById('pdf-password-input').value = '';
+        }
+        function closePasswordModal() { 
+            document.getElementById('password-modal').classList.remove('modal-active'); 
+        }
+
+        function handlePasswordSubmit(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById('pdf-password-input').value;
+            if (inputVal === ACCESS_PASSWORD) {
+                closePasswordModal();
+                window.open(PDF_DRIVE_URL, '_blank');
+            } else {
+                document.getElementById('password-error').classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePasswordModal();
+                closeFeedbackModal();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', checkPortalAccess);
+    </script>
+</body>
+</html>
